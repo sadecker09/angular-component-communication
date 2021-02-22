@@ -1,10 +1,4 @@
-import {
-  AfterViewInit,
-  Component,
-  ElementRef,
-  OnInit,
-  ViewChild,
-} from "@angular/core";
+import { Component, OnInit } from "@angular/core";
 import { NgModel } from "@angular/forms";
 
 import { IProduct } from "./product";
@@ -14,11 +8,9 @@ import { ProductService } from "./product.service";
   templateUrl: "./product-list.component.html",
   styleUrls: ["./product-list.component.css"],
 })
-export class ProductListComponent implements OnInit, AfterViewInit {
+export class ProductListComponent implements OnInit {
   pageTitle: string = "Product List";
   showImage: boolean;
-  listFilter: string;
-
   imageWidth: number = 50;
   imageMargin: number = 2;
   errorMessage: string;
@@ -26,28 +18,16 @@ export class ProductListComponent implements OnInit, AfterViewInit {
   filteredProducts: IProduct[];
   products: IProduct[];
 
-  @ViewChild("filterElement") filterElementRef: ElementRef;
-  @ViewChild(NgModel) filterInput: NgModel;
-
   constructor(private productService: ProductService) {}
 
   ngOnInit(): void {
     this.productService.getProducts().subscribe(
       (products: IProduct[]) => {
         this.products = products;
-        this.performFilter(this.listFilter);
+        this.performFilter();
       },
       (error: any) => (this.errorMessage = <any>error)
     );
-  }
-
-  ngAfterViewInit(): void {
-    this.filterInput.valueChanges.subscribe(() =>
-      this.performFilter(this.listFilter)
-    );
-    // filterElementRef would not have been available in the
-    // ngOnInit() hook.
-    this.filterElementRef.nativeElement.focus();
   }
 
   toggleImage(): void {

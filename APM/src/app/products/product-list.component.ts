@@ -1,5 +1,6 @@
-import { Component, OnInit } from "@angular/core";
+import { AfterViewInit, Component, OnInit, ViewChild } from "@angular/core";
 import { NgModel } from "@angular/forms";
+import { CriteriaComponent } from "../shared/criteria/criteria.component";
 
 import { IProduct } from "./product";
 import { ProductService } from "./product.service";
@@ -8,12 +9,15 @@ import { ProductService } from "./product.service";
   templateUrl: "./product-list.component.html",
   styleUrls: ["./product-list.component.css"],
 })
-export class ProductListComponent implements OnInit {
+export class ProductListComponent implements OnInit, AfterViewInit {
   pageTitle: string = "Product List";
   showImage: boolean;
   imageWidth: number = 50;
   imageMargin: number = 2;
   errorMessage: string;
+  includeDetail: boolean = true;
+  @ViewChild(CriteriaComponent) filterComponent: CriteriaComponent;
+  parentListFilter: string;
 
   filteredProducts: IProduct[];
   products: IProduct[];
@@ -24,10 +28,18 @@ export class ProductListComponent implements OnInit {
     this.productService.getProducts().subscribe(
       (products: IProduct[]) => {
         this.products = products;
-        this.performFilter();
+        this.performFilter(this.parentListFilter);
       },
       (error: any) => (this.errorMessage = <any>error)
     );
+  }
+
+  ngAfterViewInit(): void {
+    this.parentListFilter = this.filterComponent.listFilter;
+  }
+
+  onValueChange(value: string): void {
+    this.performFilter(value);
   }
 
   toggleImage(): void {
